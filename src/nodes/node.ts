@@ -16,9 +16,15 @@ export async function node(
   node.use(express.json());
   node.use(bodyParser.json());
 
-  // TODO implement this
   // this route allows retrieving the current status of the node
-  // node.get("/status", (req, res) => {});
+  node.get("/status", (req, res) => {
+    if (isFaulty) {
+      res.status(500).send("faulty");
+    } else {
+      res.status(200).send("live");
+    }
+  });
+  
 
   // TODO implement this
   // this route allows the node to receive messages from other nodes
@@ -32,9 +38,17 @@ export async function node(
   // this route is used to stop the consensus algorithm
   // node.get("/stop", async (req, res) => {});
 
-  // TODO implement this
+ 
   // get the current state of a node
-  // node.get("/getState", (req, res) => {});
+  node.get("/getState", (req, res) => {
+    const state = {
+      killed: false, // Assuming it's always false when the node is not stopped
+      x: isFaulty ? null : initialValue, // Assuming initialValue is the consensus value when the node is not faulty
+      decided: null, // Initial state of decided is null
+      k: null // Initial step is null
+    };
+    res.json(state);
+  });
 
   // start the server
   const server = node.listen(BASE_NODE_PORT + nodeId, async () => {
